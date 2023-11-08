@@ -9,6 +9,5 @@ python3 cloud_executor.py
 
 colonies workflow submit --spec workflow/workflow.json 
 
-python3 decrypt.py 8e7823ff8d0f8a167480199d070a43a6ad88894a45137d3837f34789580d5035 
-
-
+python3 decrypt.py 8e7823ff8d0f8a167480199d070a43a6ad88894a45137d3837f34789580d5035
+The sum of all patient data is: 60

@@ -35,4 +35,4 @@ if __name__ == '__main__':
     
     total_sum = private_key.decrypt(encrypted_sum2)
 
-    print(f"The sum of all site data is: {total_sum}")
+    print(f"The sum of all patient data is: {total_sum}")
