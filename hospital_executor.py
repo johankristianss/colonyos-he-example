@@ -13,37 +13,43 @@ class PythonExecutor:
     def __init__(self, executortype, patient_data):
         crypto = Crypto()
         
-        colonies, colonyid, colony_prvkey, _, _ = colonies_client()
+        colonies, colonyname, colony_prvkey, _, _ = colonies_client()
+
+        print(colonyname)
+        print(colony_prvkey)
 
         self.colonies = colonies
-        self.colonyid = colonyid
+        self.colonyname = colonyname
         self.colony_prvkey = colony_prvkey
         self.executor_prvkey = crypto.prvkey()
         self.executorid = crypto.id(self.executor_prvkey)
         self.patient_data = patient_data
         self.executortype = executortype
+        self.executorname = "hospital-executor" + str(uuid.uuid4())
+
+        print(self.colony_prvkey)
 
         self.register()
         
     def register(self):
         executor = {
-            "executorname": "hospital-executor" + str(uuid.uuid4()),
+            "executorname": self.executorname,
             "executorid": self.executorid,
-            "colonyid": self.colonyid,
+            "colonyname": self.colonyname,
             "executortype": self.executortype
         }
 
         try:
             self.colonies.add_executor(executor, self.colony_prvkey)
-            self.colonies.approve_executor(self.executorid, self.colony_prvkey)
+            self.colonies.approve_executor(self.colonyname, self.executorname, self.colony_prvkey)
         except Exception as err:
             print(err)
             os._exit(-1)
         print("Executor", self.executorid, "registered")
         
         try:
-            self.colonies.add_function(self.executorid, 
-                                       self.colonyid, 
+            self.colonies.add_function(self.executorname, 
+                                       self.colonyname, 
                                        "get_patient_data",  
                                        self.executor_prvkey)
             
@@ -59,7 +65,7 @@ class PythonExecutor:
     def start(self):
         while (True):
             try:
-                process = self.colonies.assign(self.colonyid, 10, self.executor_prvkey)
+                process = self.colonies.assign(self.colonyname, 10, self.executor_prvkey)
                 print("Process", process["processid"], "is assigned to executor")
                 if process["spec"]["funcname"] == "get_patient_data":
                     public_key = self.get_pubkey(process)
@@ -73,7 +79,7 @@ class PythonExecutor:
                 pass
 
     def unregister(self):
-        self.colonies.delete_executor(self.executorid, self.colony_prvkey)
+        self.colonies.remove_executor(self.colonyname, self.executorname, self.colony_prvkey)
         print("Executor", self.executorid, "unregistered")
         os._exit(0)
 
